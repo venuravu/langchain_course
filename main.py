@@ -1,3 +1,5 @@
+from typing import List
+from pydantic import BaseModel,Field
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -6,8 +8,17 @@ from langchain.tools import tool
 from langchain_core.messages import HumanMessage
 from langchain_openai import ChatOpenAI
 from tavily import TavilyClient
+from langchain_tavily import TavilySearch
 
 tavily=TavilyClient()
+class Source(BaseModel):
+    """Schema for a source used by the Agent"""
+    url:str = Field(description="The URL of the source")
+
+class AgentResponse(BaseModel):
+    """Schema for agent response with answer and sources"""
+    answer:str=Field(description="The agents answer to the query")
+    sources:list=Field(default_factory=list,description="List of sources used to generate asnwer")
 
 @tool
 def search(query: str) -> str:
@@ -22,12 +33,14 @@ def search(query: str) -> str:
     return tavily.search(query=query)
 
 llm=ChatOpenAI()
-tools=[search]
-agent=create_agent(model=llm,tools=tools)
+#Instead of writing our own function and annotate with @tool , Tavily has provided soem tools for search like TavilySearch
+# that can be used directly
+tools=[TavilySearch()]
+agent=create_agent(model=llm,tools=tools, response_format=AgentResponse)
     
 def main():
     print("Hello from langchain-course!")
-    result=agent.invoke({"messages":HumanMessage(content="What is the weather in Tokyo")})
+    result=agent.invoke({"messages":HumanMessage(content="search for 3 job postings for an ai engineer using langchain in the bay area on linkedin and list their details?")})
     print(result)
 
 
