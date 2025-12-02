@@ -18,7 +18,7 @@ class Source(BaseModel):
 class AgentResponse(BaseModel):
     """Schema for agent response with answer and sources"""
     answer:str=Field(description="The agents answer to the query")
-    sources:list=Field(default_factory=list,description="List of sources used to generate asnwer")
+    sources:List[Source]=Field(default_factory=list,description="List of sources used to generate asnwer")
 
 @tool
 def search(query: str) -> str:
