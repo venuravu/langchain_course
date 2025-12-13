@@ -1,2 +1,2 @@
 # langchain_course
-This repository is to practice  langchain and langgraph
+This repository is to practice  langchain 
